@@ -357,6 +357,33 @@ type CreateContainerOptions struct {
 	HostConfig *HostConfig `qs:"-"`
 }
 
+//CreateCheckpoint creates a checkpoint.
+//Grim, the Reaper, was here.
+func (c *Client) CreateCheckpoint(id string, imageDirectory string, workDirectory string) (int, error) {
+	path := "/containers/" + id + "/checkpoint" ///containers/"+name+"/checkpoint
+	_, status, err := c.do("POST", path, doOptions{
+		data: struct {
+			ImagesDirectory string `json:"ImagesDirectory,omitempty"`
+			WorkDirectory   string `json:"WorkDirectory,omitempty"`
+		}{
+			imageDirectory, workDirectory,
+		},
+	})
+	return status, err
+
+}
+
+/*
+
+flImgDir   = cmd.String([]string{"-image-dir"}, "", "directory to restore image files from")
+flWorkDir  = cmd.String([]string{"-work-dir"}, "", "directory for restore log")
+flCheckTcp = cmd.Bool([]string{"-allow-tcp"}, false, "allow restoring tcp connections")
+flExtUnix  = cmd.Bool([]string{"-allow-ext-unix"}, false, "allow restoring external unix connections")
+flShell    = cmd.Bool([]string{"-allow-shell"}, false, "allow restoring shell jobs")
+flForce    = cmd.Bool([]string{"-force"}, false, "bypass checks for current container state")
+
+*/
+
 // CreateContainer creates a new container, returning the container instance,
 // or an error in case of failure.
 //
@@ -529,6 +556,22 @@ func (c *Client) RestartContainer(id string, timeout uint) error {
 		return err
 	}
 	return nil
+}
+
+//RestoreContainer restores a container given ID.
+//Grim, the Reaper, was here.
+func (c *Client) RestoreContainer(id string, imagesDirectory string, workDirectory string) (int, error) {
+	path := "/containers/" + id + "/restore"
+	_, status, err := c.do("POST", path, doOptions{
+		data: struct {
+			ImagesDirectory string `json:"ImagesDirectory,omitempty"`
+			WorkDirectory   string `json:"WorkDirectory,omitempty"`
+			ForceRestore    bool
+		}{
+			imagesDirectory, workDirectory, true,
+		},
+	})
+	return status, err
 }
 
 // PauseContainer pauses the given container.
