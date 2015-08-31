@@ -560,7 +560,7 @@ func (c *Client) RestartContainer(id string, timeout uint) error {
 
 //RestoreContainer restores a container given ID.
 //Grim, the Reaper, was here.
-func (c *Client) RestoreContainer(id string, imagesDirectory string, workDirectory string) (int, error) {
+func (c *Client) RestoreContainer(id string, imagesDirectory string, workDirectory string, force bool) (int, error) {
 	path := "/containers/" + id + "/restore"
 	_, status, err := c.do("POST", path, doOptions{
 		data: struct {
@@ -568,7 +568,7 @@ func (c *Client) RestoreContainer(id string, imagesDirectory string, workDirecto
 			WorkDirectory   string `json:"WorkDirectory,omitempty"`
 			ForceRestore    bool
 		}{
-			imagesDirectory, workDirectory, true,
+			imagesDirectory, workDirectory, force,
 		},
 	})
 	return status, err
