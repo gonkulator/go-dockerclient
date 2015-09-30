@@ -558,17 +558,32 @@ func (c *Client) RestartContainer(id string, timeout uint) error {
 	return nil
 }
 
+type CriuConfig struct {
+	ImagesDirectory         string
+	WorkDirectory           string
+	LeaveRunning            bool
+	TcpEstablished          bool
+	ExternalUnixConnections bool
+	ShellJob                bool
+	FileLocks               bool
+}
+
+type RestoreConfig struct {
+	CriuOpts     CriuConfig
+	ForceRestore bool
+}
+
 //RestoreContainer restores a container given ID.
 //Grim, the Reaper, was here.
 func (c *Client) RestoreContainer(id string, imagesDirectory string, workDirectory string, force bool) (int, error) {
 	path := "/containers/" + id + "/restore"
 	_, status, err := c.do("POST", path, doOptions{
-		data: struct {
-			ImagesDirectory string `json:"ImagesDirectory,omitempty"`
-			WorkDirectory   string `json:"WorkDirectory,omitempty"`
-			ForceRestore    bool
-		}{
-			imagesDirectory, workDirectory, force,
+		data: RestoreConfig{
+			CriuOpts: CriuConfig{
+				ImagesDirectory: imagesDirectory,
+				WorkDirectory:   workDirectory,
+			},
+			ForceRestore: force,
 		},
 	})
 	return status, err
